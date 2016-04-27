@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Es6 - Promises</title>
+</head>
+<body>
+    <h1>Es6 Promises</h1>
+    <img src="images/spinner.gif" class="spinner"></img>
+    <h3 id="storyHead"></h3>
+    <div id="error"></div>
+    <div id="msg"></div>
+    <div id="chapter"></div>
+
+    <script src="js/req.js"></script>
+    <script>     
+    getJSON('story/story.json').then(function(story) {
+      addHtmlToPage('storyHead',story.heading);
+      return story.chapterUrls.reduce(function(sequence, chapterUrl) {
+        // Once the last chapter's promise is done…
+        return sequence.then(function() {
+          // …fetch the next chapter
+          return getJSON('story/'+chapterUrl);
+        }).then(function(chapter) {
+          // and add it to the page
+          addHtmlToPage('chapter',chapter.html);
+        });
+      }, Promise.resolve());
+    }).then(function() {
+      // And we're all done!
+      addHtmlToPage("msg","All done");
+    }).catch(function(err) {
+      // Catch any error that happened along the way
+      addHtmlToPage("error","Argh, broken: " + err.message);
+    }).then(function() {
+      // Always hide the spinner
+      document.querySelector('.spinner').style.display = 'none';
+    });
+
+    function addHtmlToPage(id,html)
+    {
+        document.getElementById(id).innerHTML += html;
+    }
+    </script>
+</body>
+</html>

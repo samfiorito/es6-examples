@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Es6 - Promises</title>
+</head>
+<body>
+    <h1>Es6 Promises</h1>
+    <img src="images/spinner.gif" class="spinner"></img>
+    <h3 id="storyHead"></h3>
+    <div id="error"></div>
+    <div id="msg"></div>
+    <div id="chapter"></div>
+
+    <script src="js/req.js"></script>
+    <script>     
+    getJSON('story/story.json').then(function(story) {
+      addHtmlToPage('storyHead',story.heading);
+
+      //append /story to the url
+      story.chapterUrls.forEach(function(currentvalue, index, arr) {
+        arr[index] = "story/"+currentvalue;
+      });
+
+      return Promise.all(story.chapterUrls.map(getJSON));
+    })
+    .then(function(chapters) {
+      chapters.forEach(function(chapter) {
+        addHtmlToPage("chapter",chapter.html);
+      });    
+      addHtmlToPage("msg","All done");
+    }).catch(function(err) {
+      addHtmlToPage("error","Argh, broken: " + err.message);
+    })
+    .then(function() {
+      document.querySelector('.spinner').style.display = 'none';
+    });
+
+    function addHtmlToPage(id,html)
+    {
+        document.getElementById(id).innerHTML += html;
+    }
+    </script>
+</body>
+</html>
